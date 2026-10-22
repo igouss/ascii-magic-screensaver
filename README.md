@@ -44,8 +44,9 @@ deterministic, so `--seed` is unused and every monitor shows the same frame.
 - `host/host.js` (GJS) is the window: GTK 3 + WebKit2 4.1, app id from the
   program name, and every key, click, scroll and pointer move written to
   stdout for screensaver-session to judge.
-- `host/fonts.conf` maps upstream's first font, Menlo, to the system's
-  monospace font for this window only. Without it fontconfig picks a
+- `host/fonts.conf` maps upstream's first font, Menlo, to Hack (Hack Nerd
+  Font Mono), for this window only. Hack has Menlo's advance width, 0.602 em,
+  which upstream sizes its cells by. Without it fontconfig picks a
   proportional sans, and wide glyphs overflow their cells (an O clipped to
   a C).
 
