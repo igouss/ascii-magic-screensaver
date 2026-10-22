@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ascii-magic</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; cursor: none; background: #09090b; color: #e4e4e7 }
+  body { display: flex; align-items: center; justify-content: center }
+  pre { margin: 0; font-family: Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace }
+</style>
+<pre id="art"></pre>
+<script type="module">
+  // One piece, played by upstream's own player, scaled to fill the window.
+  // The background is the one upstream's exports use.
+  import { play } from "../vendor/ascii-magic-art/runtime/player.js";
+  import { fit } from "./fit.js";
+
+  const pre = document.getElementById("art");
+  const slug = new URLSearchParams(location.search).get("piece") || "";
+  try {
+    const piece = await import(`../vendor/ascii-magic-art/pieces/${slug.replace(/[^a-z0-9-]/g, "")}.js`);
+    let stop = () => {};
+    const start = () => {
+      stop();
+      pre.style.fontSize = `${fit(piece.meta, innerWidth, innerHeight)}px`;
+      stop = play(pre, piece, { still: false });
+    };
+    addEventListener("resize", start);
+    start();
+  } catch (error) {
+    pre.textContent = `ascii-magic: can't play "${slug}": ${error}`;
+    console.error(pre.textContent);
+  }
+</script>

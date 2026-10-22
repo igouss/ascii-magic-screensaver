@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# ascii-magic: upstream's ascii-magic-art pieces as a screensaver-rotation
+# runner.
+#
+#   ascii-magic --list                     every piece, as magic:<piece>
+#   ascii-magic PIECE...                   play the first piece there is, until
+#                                          a key, click or mouse move
+#   ascii-magic --app-id ID --seed N --log FILE ENTRY...
+#                                          the same as the Omarchy screensaver,
+#                                          under screensaver-session
+#
+# Entries are magic:<piece>, so the rotation keeps their history apart from
+# shaders of the same name (plasma, metaballs...). A bare piece name or a
+# path to one works too. Pieces are deterministic, so --seed is unused.
+
+set -euo pipefail
+
+repo=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+pieces="$repo/vendor/ascii-magic-art/pieces"
+prefix=magic:
+
+app_id=ascii-magic log='' entries=()
+while (($#)); do
+  case $1 in
+    --list)
+      for file in "$pieces"/*.js; do
+        name=${file##*/}
+        echo "$prefix${name%.js}"
+      done
+      exit 0
+      ;;
+    --app-id) app_id=$2; shift 2 ;;
+    --seed) shift 2 ;;
+    --log) log=$2; shift 2 ;;
+    -*) echo "ascii-magic: unknown option $1" >&2; exit 2 ;;
+    *) entries+=("$1"); shift ;;
+  esac
+done
+
+for entry in "${entries[@]}"; do
+  name=${entry##*/}
+  name=${name#"$prefix"}
+  name=${name%.js}
+  [[ -f $pieces/$name.js ]] || continue
+  exec screensaver-session --app-id "$app_id" ${log:+--log "$log"} \
+    --entry "$prefix$name" --kind ascii-magic -- gjs -m "$repo/host/host.js" "$app_id" "$name"
+done
+echo "ascii-magic: no piece among: ${entries[*]}; try ascii-magic --list" >&2
+exit 1

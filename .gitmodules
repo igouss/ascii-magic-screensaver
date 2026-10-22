@@ -1,0 +1,3 @@
+[submodule "vendor/ascii-magic-art"]
+	path = vendor/ascii-magic-art
+	url = https://github.com/kailashsr38/ascii-magic-art
